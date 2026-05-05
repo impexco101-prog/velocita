@@ -92,6 +92,58 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section id="how-it-works" className="bg-background py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-playfair font-bold text-text-primary mb-4">
+              How Velocita Works
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-12">
+            {/* Step 01 */}
+            <div className="text-center">
+              <div className="text-6xl font-playfair font-bold text-gold-cta mb-4">
+                01
+              </div>
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-4">
+                Take Free Diagnostic
+              </h3>
+              <p className="text-base font-dm-sans text-[#8B9DC3] leading-relaxed">
+                Identify your exact knowledge gaps in just 5 minutes. No signup required.
+              </p>
+            </div>
+
+            {/* Step 02 */}
+            <div className="text-center">
+              <div className="text-6xl font-playfair font-bold text-gold-cta mb-4">
+                02
+              </div>
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-4">
+                Match With a Verified Tutor
+              </h3>
+              <p className="text-base font-dm-sans text-[#8B9DC3] leading-relaxed">
+                Every tutor is university-verified and background checked. See real credentials.
+              </p>
+            </div>
+
+            {/* Step 03 */}
+            <div className="text-center">
+              <div className="text-6xl font-playfair font-bold text-gold-cta mb-4">
+                03
+              </div>
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-4">
+                Track Your ATAR Progress
+              </h3>
+              <p className="text-base font-dm-sans text-[#8B9DC3] leading-relaxed">
+                Weekly AI reports show exactly what is improving and what needs work.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Social Proof Section */}
       <section id="results" className="bg-cards py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -189,6 +241,221 @@ export default function Home() {
               className="inline-flex items-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-4 px-8 rounded-[6px] transition-colors text-lg"
             >
               Start Your Free ATAR Diagnostic →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-cards py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-playfair font-bold text-text-primary mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-lg text-[#8B9DC3]">
+              No lock-in contracts. Cancel anytime.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* AI Foundation Card */}
+            <div className="bg-background border border-card-border rounded-lg p-8">
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-2">
+                AI Foundation
+              </h3>
+              <div className="text-4xl font-bold text-gold-cta mb-6">
+                $79<span className="text-lg text-[#8B9DC3]">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Unlimited Socratic AI sessions</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Homework photo analysis</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Weekly parent progress report</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Spaced repetition quizzes</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Free ATAR diagnostic included</span>
+                </li>
+              </ul>
+              <button className="w-full bg-transparent border border-white text-white font-bold py-3 px-6 rounded-[6px] hover:bg-white hover:text-background transition-colors">
+                Get Started
+              </button>
+            </div>
+
+            {/* Hybrid Accelerator Card (Featured) */}
+            <div className="bg-background border-2 border-gold-cta rounded-lg p-8 shadow-lg transform scale-105">
+              <div className="bg-gold-cta text-background text-sm font-bold py-1 px-3 rounded-full inline-block mb-4">
+                Most Popular
+              </div>
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-2">
+                Hybrid Accelerator
+              </h3>
+              <div className="text-4xl font-bold text-gold-cta mb-6">
+                $299<span className="text-lg text-[#8B9DC3]">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Everything in AI Foundation</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">4 human tutor sessions per month</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Priority tutor matching</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Post-session parent notes</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Bilingual parent communication</span>
+                </li>
+              </ul>
+              <button className="w-full bg-gold-cta hover:bg-yellow-500 text-background font-bold py-3 px-6 rounded-[6px] transition-colors">
+                Get Started
+              </button>
+            </div>
+
+            {/* Elite ATAR Program Card */}
+            <div className="bg-background border border-card-border rounded-lg p-8">
+              <h3 className="text-2xl font-playfair font-bold text-text-primary mb-2">
+                Elite ATAR Program
+              </h3>
+              <div className="text-4xl font-bold text-gold-cta mb-6">
+                $599<span className="text-lg text-[#8B9DC3]">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Everything in Hybrid Accelerator</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">8 tutor sessions per month</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Dedicated tutor relationship</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">Monthly parent strategy call</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-gold-cta mr-2">✓</span>
+                  <span className="text-text-primary">ATAR improvement guarantee</span>
+                </li>
+              </ul>
+              <button className="w-full bg-transparent border border-white text-white font-bold py-3 px-6 rounded-[6px] hover:bg-white hover:text-background transition-colors">
+                Get Started
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tutors Section */}
+      <section id="tutors" className="bg-background py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-playfair font-bold text-text-primary mb-4">
+              Meet Our Verified Tutors
+            </h2>
+            <p className="text-lg text-[#8B9DC3] max-w-3xl mx-auto">
+              Every tutor is university verified, background checked, and outcome tracked.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Tutor 1 */}
+            <div className="bg-cards border border-card-border rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-16 h-16 bg-gold-cta rounded-full flex items-center justify-center text-background font-bold text-xl mr-4">
+                  EW
+                </div>
+                <div>
+                  <div className="font-bold text-text-primary text-lg">Emma Wong</div>
+                  <div className="text-sm text-[#8B9DC3]">University of Melbourne</div>
+                </div>
+              </div>
+              <div className="text-sm text-[#8B9DC3] mb-4">
+                Doctor of Medicine (Year 4)
+              </div>
+              <div className="text-sm text-text-primary mb-4">
+                <strong>Subjects:</strong> Mathematical Methods, Specialist Maths, Chemistry
+              </div>
+              <div className="inline-block bg-gold-cta text-background text-xs font-bold py-1 px-3 rounded-full">
+                Elite Tutor
+              </div>
+            </div>
+
+            {/* Tutor 2 */}
+            <div className="bg-cards border border-card-border rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-16 h-16 bg-gold-cta rounded-full flex items-center justify-center text-background font-bold text-xl mr-4">
+                  MJ
+                </div>
+                <div>
+                  <div className="font-bold text-text-primary text-lg">Marcus Johnson</div>
+                  <div className="text-sm text-[#8B9DC3]">Monash University</div>
+                </div>
+              </div>
+              <div className="text-sm text-[#8B9DC3] mb-4">
+                Bachelor of Engineering (Hons)
+              </div>
+              <div className="text-sm text-text-primary mb-4">
+                <strong>Subjects:</strong> Physics, Mathematical Methods, English Language
+              </div>
+              <div className="inline-block bg-gold-cta text-background text-xs font-bold py-1 px-3 rounded-full">
+                Elite Tutor
+              </div>
+            </div>
+
+            {/* Tutor 3 */}
+            <div className="bg-cards border border-card-border rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-16 h-16 bg-gold-cta rounded-full flex items-center justify-center text-background font-bold text-xl mr-4">
+                  SL
+                </div>
+                <div>
+                  <div className="font-bold text-text-primary text-lg">Sarah Lee</div>
+                  <div className="text-sm text-[#8B9DC3]">RMIT University</div>
+                </div>
+              </div>
+              <div className="text-sm text-[#8B9DC3] mb-4">
+                Bachelor of Science (Distinction)
+              </div>
+              <div className="text-sm text-text-primary mb-4">
+                <strong>Subjects:</strong> Biology, Psychology, English Literature
+              </div>
+              <div className="inline-block bg-gold-cta text-background text-xs font-bold py-1 px-3 rounded-full">
+                Elite Tutor
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link 
+              href="/diagnostic" 
+              className="inline-flex items-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-4 px-8 rounded-[6px] transition-colors text-lg"
+            >
+              Start With a Free Diagnostic →
             </Link>
           </div>
         </div>
