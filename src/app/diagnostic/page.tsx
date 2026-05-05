@@ -299,6 +299,17 @@ export default function DiagnosticPage() {
           <span>99</span>
         </div>
       </div>
+      
+      {currentStep === 1 && (
+        <div className="flex justify-end mt-8">
+          <button
+            onClick={nextStep}
+            className="bg-gold-cta hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   )
 
