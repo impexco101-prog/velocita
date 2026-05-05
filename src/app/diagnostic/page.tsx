@@ -127,6 +127,30 @@ export default function DiagnosticPage() {
   const [predictedATAR, setPredictedATAR] = useState(0)
   const [velocitaATAR, setVelocitaATAR] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [animatedATAR, setAnimatedATAR] = useState(0)
+
+  useEffect(() => {
+    calculateATAR()
+  }, [formData, mathScores, englishScores])
+
+  useEffect(() => {
+    if (currentStep === 5 && predictedATAR > 0) {
+      const duration = 1500
+      const steps = 60
+      const increment = predictedATAR / steps
+      let current = 0
+      const timer = setInterval(() => {
+        current += increment
+        if (current >= predictedATAR) {
+          setAnimatedATAR(Math.round(predictedATAR))
+          clearInterval(timer)
+        } else {
+          setAnimatedATAR(Math.round(current))
+        }
+      }, duration / steps)
+      return () => clearInterval(timer)
+    }
+  }, [currentStep, predictedATAR])
 
   const calculateATAR = () => {
     const mathScore = mathScores.filter(a => a === 1).length * 20
@@ -212,8 +236,35 @@ export default function DiagnosticPage() {
     </div>
   )
 
+  const renderHeader = () => (
+    <div className="text-center mb-8">
+      <div className="flex items-center justify-center mb-2">
+        <span className="text-gold-cta mr-2">↑</span>
+        <h1 className="text-2xl font-playfair font-bold text-gold-cta">
+          Velocita
+        </h1>
+      </div>
+      <p className="text-xs font-dm-sans text-[#4A5578] tracking-wider mb-4">
+        ATAR ACCELERATION PLATFORM
+      </p>
+      <div className="w-24 h-px bg-gold-cta mx-auto"></div>
+    </div>
+  )
+
+  const getStepLabel = () => {
+    const labels = {
+      1: "STEP 1 OF 5 — STUDENT PROFILE",
+      2: "STEP 2 OF 5 — MATHEMATICS", 
+      3: "STEP 3 OF 5 — ENGLISH",
+      4: "STEP 4 OF 5 — STUDY HABITS",
+      5: "STEP 5 OF 5 — YOUR RESULTS"
+    }
+    return labels[currentStep]
+  }
+
   const renderStep1 = () => (
     <div className="space-y-8">
+      <p className="text-xs uppercase tracking-wider text-gold-cta mb-4">{getStepLabel()}</p>
       <h2 className="text-3xl font-playfair font-bold text-text-primary">Student Profile</h2>
       
       <div>
@@ -305,7 +356,7 @@ export default function DiagnosticPage() {
           <button
             onClick={nextStep}
             disabled={!formData.year_level || formData.subjects.length === 0}
-            className="w-full bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors"
+            className="w-full bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-[14px] px-8 rounded-[6px] transition-colors"
           >
             Start Diagnostic →
           </button>
@@ -316,6 +367,7 @@ export default function DiagnosticPage() {
 
   const renderStep2 = () => (
     <div className="space-y-8">
+      <p className="text-xs uppercase tracking-wider text-gold-cta mb-4">{getStepLabel()}</p>
       <h2 className="text-3xl font-playfair font-bold text-text-primary">Mathematics Quiz</h2>
       <p className="text-text-secondary">Question {formData.math_answers.length + 1} of 5</p>
       
@@ -370,6 +422,7 @@ export default function DiagnosticPage() {
 
   const renderStep3 = () => (
     <div className="space-y-8">
+      <p className="text-xs uppercase tracking-wider text-gold-cta mb-4">{getStepLabel()}</p>
       <h2 className="text-3xl font-playfair font-bold text-text-primary">English Quiz</h2>
       <p className="text-text-secondary">Question {formData.english_answers.length + 1} of 5</p>
       
@@ -424,6 +477,7 @@ export default function DiagnosticPage() {
 
   const renderStep4 = () => (
     <div className="space-y-8">
+      <p className="text-xs uppercase tracking-wider text-gold-cta mb-4">{getStepLabel()}</p>
       <h2 className="text-3xl font-playfair font-bold text-text-primary">Study Habits</h2>
       
       <div>
@@ -513,7 +567,7 @@ export default function DiagnosticPage() {
           <button
             onClick={nextStep}
             disabled={!formData.email}
-            className="bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-3 px-6 rounded-lg transition-colors"
+            className="flex-1 bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-[14px] px-8 rounded-[6px] transition-colors"
           >
             See My Results →
           </button>
@@ -524,11 +578,12 @@ export default function DiagnosticPage() {
 
   const renderStep5 = () => (
     <div className="space-y-8">
+      <p className="text-xs uppercase tracking-wider text-gold-cta mb-4">{getStepLabel()}</p>
       <h2 className="text-3xl font-playfair font-bold text-text-primary">Your ATAR Prediction</h2>
       
       <div className="text-center py-8">
         <div className="text-6xl font-playfair font-bold text-gold-cta mb-4">
-          {Math.round(predictedATAR)}
+          {animatedATAR}
         </div>
         <p className="text-text-secondary">Predicted ATAR</p>
       </div>
@@ -594,7 +649,7 @@ export default function DiagnosticPage() {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex-1 bg-gold-cta hover:bg-yellow-500 text-background font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 bg-gold-cta hover:bg-yellow-500 text-background font-bold py-[14px] px-8 rounded-[6px] transition-colors disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Book Free Session'}
         </button>
@@ -602,25 +657,28 @@ export default function DiagnosticPage() {
           View Tutors
         </button>
       </div>
+      <div className="text-center mt-8">
+        <p className="text-xs text-[#4A5578]">
+          Powered by Velocita Learning · velocita.com.au
+        </p>
+      </div>
     </div>
   )
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-playfair font-bold text-gold-cta">
-            ↑ Velocita
-          </h1>
-        </div>
+        {renderHeader()}
         {renderProgressBar()}
         
         <div className="bg-cards border border-card-border rounded-lg p-8">
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
-          {currentStep === 4 && renderStep4()}
-          {currentStep === 5 && renderStep5()}
+          <div className="animate-fade-in">
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+            {currentStep === 4 && renderStep4()}
+            {currentStep === 5 && renderStep5()}
+          </div>
           
           {currentStep > 1 && currentStep < 5 && (
             <div className="flex justify-between mt-8">
