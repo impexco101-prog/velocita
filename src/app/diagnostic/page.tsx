@@ -249,7 +249,7 @@ export default function DiagnosticPage() {
               }}
               className={`px-4 py-2 rounded-full text-sm border transition-all ${
                 formData.subjects.includes(subject)
-                  ? 'bg-gold-cta border-gold-cta text-white'
+                  ? 'bg-gold-cta/15 border-gold-cta text-gold-cta'
                   : 'bg-cards border-card-border text-text-primary hover:border-gold-cta'
               }`}
             >
@@ -301,12 +301,13 @@ export default function DiagnosticPage() {
       </div>
       
       {currentStep === 1 && (
-        <div className="flex justify-end mt-8">
+        <div className="mt-8">
           <button
             onClick={nextStep}
-            className="bg-gold-cta hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            disabled={!formData.year_level || formData.subjects.length === 0}
+            className="w-full bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors"
           >
-            Next
+            Start Diagnostic →
           </button>
         </div>
       )}
