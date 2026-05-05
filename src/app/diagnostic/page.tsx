@@ -501,6 +501,24 @@ export default function DiagnosticPage() {
           placeholder="your@email.com"
         />
       </div>
+      
+      {currentStep === 4 && (
+        <div className="flex justify-between mt-8">
+          <button
+            onClick={prevStep}
+            className="bg-cards border border-card-border text-text-primary font-bold py-3 px-6 rounded-lg hover:border-gold-cta transition-colors"
+          >
+            Previous
+          </button>
+          <button
+            onClick={nextStep}
+            disabled={!formData.email}
+            className="bg-gold-cta hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            See My Results →
+          </button>
+        </div>
+      )}
     </div>
   )
 
