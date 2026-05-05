@@ -528,7 +528,7 @@ export default function DiagnosticPage() {
       
       <div className="text-center py-8">
         <div className="text-6xl font-playfair font-bold text-gold-cta mb-4">
-          {predictedATAR.toFixed(2)}
+          {Math.round(predictedATAR)}
         </div>
         <p className="text-text-secondary">Predicted ATAR</p>
       </div>
@@ -536,14 +536,14 @@ export default function DiagnosticPage() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-cards border border-card-border rounded-lg p-6">
           <h3 className="text-xl font-playfair font-bold text-gold-cta mb-2">Current Trajectory</h3>
-          <div className="text-3xl font-bold text-gold-cta mb-2">{predictedATAR.toFixed(2)}</div>
+          <div className="text-3xl font-bold text-gold-cta mb-2">{Math.round(predictedATAR)}</div>
           <p className="text-text-secondary text-sm">Based on your current study habits</p>
         </div>
         
         <div className="bg-cards border border-card-border rounded-lg p-6">
           <h3 className="text-xl font-playfair font-bold text-success-green mb-2">With Velocita</h3>
-          <div className="text-3xl font-bold text-success-green mb-2">{velocitaATAR.toFixed(2)}</div>
-          <p className="text-text-secondary text-sm">+{(velocitaATAR - predictedATAR).toFixed(2)} with expert tutoring</p>
+          <div className="text-3xl font-bold text-success-green mb-2">{Math.round(velocitaATAR)}</div>
+          <p className="text-text-secondary text-sm">+{Math.round(velocitaATAR - predictedATAR)} with expert tutoring</p>
         </div>
       </div>
 
@@ -594,7 +594,7 @@ export default function DiagnosticPage() {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex-1 bg-gold-cta hover:bg-yellow-500 text-white font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 bg-gold-cta hover:bg-yellow-500 text-background font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Book Free Session'}
         </button>
@@ -608,6 +608,11 @@ export default function DiagnosticPage() {
   return (
     <div className="min-h-screen bg-background text-text-primary">
       <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-playfair font-bold text-gold-cta">
+            ↑ Velocita
+          </h1>
+        </div>
         {renderProgressBar()}
         
         <div className="bg-cards border border-card-border rounded-lg p-8">
