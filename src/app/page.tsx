@@ -29,6 +29,12 @@ export default function Home() {
                 Pricing
               </Link>
               <Link 
+                href="/tutors/register" 
+                className="text-sm font-dm-sans text-[#8B9DC3] hover:text-gold-cta transition-colors"
+              >
+                Join as a Tutor
+              </Link>
+              <Link 
                 href="/diagnostic" 
                 className="bg-gold-cta hover:bg-yellow-500 text-background font-bold py-2 px-4 rounded-[6px] transition-colors"
               >
@@ -68,9 +74,12 @@ export default function Home() {
               >
                 Take Free Diagnostic →
               </Link>
-              <button className="inline-flex items-center justify-center bg-transparent border border-white text-white font-bold py-4 px-8 rounded-[6px] hover:bg-white hover:text-background transition-colors text-lg">
+              <Link 
+                href="#tutors"
+                className="inline-flex items-center justify-center bg-transparent border border-white text-white font-bold py-4 px-8 rounded-[6px] hover:bg-white hover:text-background transition-colors text-lg"
+              >
                 Browse Verified Tutors
-              </button>
+              </Link>
             </div>
 
             {/* Trust strip */}
