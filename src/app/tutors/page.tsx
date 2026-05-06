@@ -245,11 +245,7 @@ export default function TutorsPage() {
                 </div>
               </div>
 
-              {/* Price */}
-              <div className="mb-4">
-                <div className="text-lg font-bold text-gold-cta">${match.tutor.hourly_rate}/hour</div>
-              </div>
-
+              
               {/* CTA Button */}
               <Link
                 href={`/auth/signup?subject=${selectedSubject}&tutor=${match.tutor.id}`}

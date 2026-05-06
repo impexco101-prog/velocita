@@ -91,16 +91,16 @@ export default function Home() {
             {/* Trust strip */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start">
-                <span className="text-2xl font-bold text-gold-cta mr-2">2,200+</span>
-                <span className="text-sm text-[#8B9DC3]">Students</span>
-              </div>
-              <div className="flex items-center justify-center sm:justify-start">
-                <span className="text-2xl font-bold text-gold-cta mr-2">94%</span>
-                <span className="text-sm text-[#8B9DC3]">Hit Target ATAR</span>
+                <span className="text-2xl font-bold text-gold-cta mr-2">Founding Cohort</span>
+                <span className="text-sm text-[#8B9DC3]">Now Open</span>
               </div>
               <div className="flex items-center justify-center sm:justify-start">
                 <span className="text-2xl font-bold text-gold-cta mr-2">Verified</span>
                 <span className="text-sm text-[#8B9DC3]">Tutors Only</span>
+              </div>
+              <div className="flex items-center justify-center sm:justify-start">
+                <span className="text-2xl font-bold text-gold-cta mr-2">Melbourne</span>
+                <span className="text-sm text-[#8B9DC3]">VCE Specialists</span>
               </div>
             </div>
           </div>
