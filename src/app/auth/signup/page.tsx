@@ -13,7 +13,11 @@ export default function Signup() {
     confirmPassword: '',
     role: 'parent' as 'parent' | 'tutor' | 'admin',
     university: '',
-    preferredLanguage: 'en'
+    preferredLanguage: 'en',
+    consentTerms: false,
+    consentAiMonitoring: false,
+    consentDataUse: false,
+    consentEmails: false
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,6 +29,13 @@ export default function Signup() {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    // Validate required consents
+    if (!formData.consentTerms || !formData.consentAiMonitoring || !formData.consentDataUse) {
+      setError('Please accept all required consent checkboxes')
       setLoading(false)
       return
     }
@@ -229,6 +240,60 @@ export default function Signup() {
                 className="w-full px-4 py-3 bg-[#1A2140] border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-cta focus:border-transparent text-text-primary"
                 placeholder="Enter referral code if you have one"
               />
+            </div>
+
+            {/* Consent Checkboxes */}
+            <div className="space-y-4">
+              <label className="flex items-start">
+                <input
+                  type="checkbox"
+                  required
+                  checked={formData.consentTerms}
+                  onChange={(e) => setFormData({...formData, consentTerms: e.target.checked})}
+                  className="mr-3 mt-1 w-4 h-4 text-gold-cta bg-[#1A2140] border-gray-600 rounded focus:ring-gold-cta"
+                />
+                <span className="text-sm text-text-primary">
+                  I agree to Velocita's Terms of Service and Privacy Policy (required)
+                </span>
+              </label>
+              
+              <label className="flex items-start">
+                <input
+                  type="checkbox"
+                  required
+                  checked={formData.consentAiMonitoring}
+                  onChange={(e) => setFormData({...formData, consentAiMonitoring: e.target.checked})}
+                  className="mr-3 mt-1 w-4 h-4 text-gold-cta bg-[#1A2140] border-gray-600 rounded focus:ring-gold-cta"
+                />
+                <span className="text-sm text-text-primary">
+                  I consent to AI monitoring of tutoring sessions for safety and quality purposes (required for all users)
+                </span>
+              </label>
+              
+              <label className="flex items-start">
+                <input
+                  type="checkbox"
+                  required
+                  checked={formData.consentDataUse}
+                  onChange={(e) => setFormData({...formData, consentDataUse: e.target.checked})}
+                  className="mr-3 mt-1 w-4 h-4 text-gold-cta bg-[#1A2140] border-gray-600 rounded focus:ring-gold-cta"
+                />
+                <span className="text-sm text-text-primary">
+                  I consent to my child's learning data being used to improve ATAR predictions (required for parents)
+                </span>
+              </label>
+              
+              <label className="flex items-start">
+                <input
+                  type="checkbox"
+                  checked={formData.consentEmails}
+                  onChange={(e) => setFormData({...formData, consentEmails: e.target.checked})}
+                  className="mr-3 mt-1 w-4 h-4 text-gold-cta bg-[#1A2140] border-gray-600 rounded focus:ring-gold-cta"
+                />
+                <span className="text-sm text-text-primary">
+                  I would like to receive weekly progress reports and platform updates via email (optional)
+                </span>
+              </label>
             </div>
 
             {/* Error Message */}
