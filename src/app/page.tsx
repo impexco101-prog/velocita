@@ -17,8 +17,8 @@ export default function Home() {
               </span>
             </div>
 
-            {/* Right: Links and CTA */}
-            <div className="flex items-center space-x-8">
+            {/* Right: Links and CTAs */}
+            <div className="flex items-center space-x-6">
               <Link href="#how-it-works" className="text-sm font-dm-sans text-[#8B9DC3] hover:text-gold-cta transition-colors">
                 How it works
               </Link>
@@ -35,10 +35,16 @@ export default function Home() {
                 Join as a Tutor
               </Link>
               <Link 
-                href="/diagnostic" 
+                href="/auth/login" 
+                className="text-sm font-dm-sans text-[#8B9DC3] hover:text-gold-cta transition-colors"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/auth/signup" 
                 className="bg-gold-cta hover:bg-yellow-500 text-background font-bold py-2 px-4 rounded-[6px] transition-colors"
               >
-                Start Free Diagnostic
+                Get Started Free
               </Link>
             </div>
           </div>
@@ -69,10 +75,10 @@ export default function Home() {
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-16">
               <Link 
-                href="/diagnostic" 
+                href="/auth/signup" 
                 className="inline-flex items-center justify-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-4 px-8 rounded-[6px] transition-colors text-lg"
               >
-                Take Free Diagnostic →
+                Get Started Free →
               </Link>
               <Link 
                 href="#tutors"

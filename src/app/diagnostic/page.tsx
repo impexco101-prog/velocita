@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
+import { getRankedTutors } from '@/lib/matching'
 
 interface DiagnosticData {
   year_level: string
@@ -653,9 +655,12 @@ export default function DiagnosticPage() {
         >
           {isSubmitting ? 'Submitting...' : 'Book Free Session'}
         </button>
-        <button className="flex-1 bg-cards border border-card-border text-text-primary font-bold py-4 px-6 rounded-lg hover:border-gold-cta transition-colors">
-          View Tutors
-        </button>
+        <Link 
+          href={`/tutors?subject=${formData.subjects[0] || 'Mathematical Methods'}`}
+          className="flex-1 bg-cards border border-card-border text-text-primary font-bold py-4 px-6 rounded-lg hover:border-gold-cta transition-colors text-center"
+        >
+          View Matched Tutors
+        </Link>
       </div>
       <div className="text-center mt-8">
         <p className="text-xs text-[#4A5578]">
