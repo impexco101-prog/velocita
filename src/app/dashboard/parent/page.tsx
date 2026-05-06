@@ -118,7 +118,6 @@ export default function ParentDashboard() {
     
     fetchData()
   }, [])
-}, [])
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
