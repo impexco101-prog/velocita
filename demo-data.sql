@@ -310,7 +310,7 @@ INSERT INTO bookings (
   weakest subject. SAC approaching — 
   recommend extra practice this week.',
   4,4,75.00,NOW()-INTERVAL '21 days'),
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaag',
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1',
   '33333333-3333-3333-3333-333333333331',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Methods','VCE',
@@ -320,7 +320,7 @@ INSERT INTO bookings (
   significantly. All working shown clearly. 
   Updated estimate: 74.',
   5,5,75.00,NOW()-INTERVAL '14 days'),
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaah',
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2',
   '33333333-3333-3333-3333-333333333331',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Methods','VCE',
@@ -330,7 +330,7 @@ INSERT INTO bookings (
   full past exam paper — scored 72%. 
   Strong improvement from 58% in Week 1.',
   5,5,75.00,NOW()-INTERVAL '7 days'),
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaai',
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3',
   '33333333-3333-3333-3333-333333333331',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Methods','VCE',
@@ -611,7 +611,7 @@ INSERT INTO bookings (
   NULL,NULL,NULL,75.00,NOW()),
 
 -- Maya Patel sessions (3 completed, 1 upcoming)
-('gggggggg-gggg-gggg-gggg-ggggggggggg1',
+('a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a1',
   '33333333-3333-3333-3333-333333333337',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Reasoning','SELECTIVE_VIC',
@@ -621,7 +621,7 @@ INSERT INTO bookings (
   in numerical reasoning, needs work 
   on abstract patterns.',
   5,5,75.00,NOW()-INTERVAL '21 days'),
-('gggggggg-gggg-gggg-gggg-ggggggggggg2',
+('a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a2',
   '33333333-3333-3333-3333-333333333337',
   '11111111-1111-1111-1111-111111111111',
   'Verbal Reasoning','SELECTIVE_VIC',
@@ -631,7 +631,7 @@ INSERT INTO bookings (
   is excellent. Speed needs improvement 
   for timed test conditions.',
   5,5,75.00,NOW()-INTERVAL '14 days'),
-('gggggggg-gggg-gggg-gggg-ggggggggggg3',
+('a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a3',
   '33333333-3333-3333-3333-333333333337',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Reasoning','SELECTIVE_VIC',
@@ -641,7 +641,7 @@ INSERT INTO bookings (
   On track for Melbourne High entry 
   score at current pace.',
   5,5,75.00,NOW()-INTERVAL '7 days'),
-('gggggggg-gggg-gggg-gggg-ggggggggggg4',
+('a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a4',
   '33333333-3333-3333-3333-333333333337',
   '11111111-1111-1111-1111-111111111111',
   'Mathematical Reasoning','SELECTIVE_VIC',
