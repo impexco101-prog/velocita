@@ -203,6 +203,31 @@ CREATE INDEX IF NOT EXISTS idx_progress_narratives_student_id ON progress_narrat
 CREATE INDEX IF NOT EXISTS idx_velocity_scores_tutor_id ON velocity_scores(tutor_id);
 CREATE INDEX IF NOT EXISTS idx_vce_calendar_event_date ON vce_calendar(event_date);
 
+-- Bookings Table
+CREATE TABLE IF NOT EXISTS bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID REFERENCES students(id),
+  tutor_id UUID REFERENCES profiles(id),
+  subject TEXT,
+  curriculum_code TEXT DEFAULT 'VCE',
+  scheduled_at TIMESTAMPTZ,
+  duration_minutes INTEGER DEFAULT 60,
+  status TEXT CHECK (status IN (
+    'pending','confirmed','completed','cancelled'
+  )) DEFAULT 'pending',
+  session_notes TEXT,
+  tutor_rating INTEGER CHECK (
+    tutor_rating BETWEEN 1 AND 5
+  ),
+  parent_rating INTEGER CHECK (
+    parent_rating BETWEEN 1 AND 5
+  ),
+  amount_aud DECIMAL(8,2),
+  stripe_payment_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE family_accounts ENABLE ROW LEVEL SECURITY;
@@ -216,9 +241,25 @@ ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE progress_narratives ENABLE ROW LEVEL SECURITY;
 ALTER TABLE velocity_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies (basic - will be refined with authentication)
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Parents can view own family" ON family_accounts FOR SELECT USING (auth.uid() = parent_id);
 CREATE POLICY "Parents can view own students" ON students FOR SELECT USING (family_id IN (SELECT id FROM family_accounts WHERE parent_id = auth.uid()));
+
+-- Bookings RLS Policies
+CREATE POLICY "Parents can view own bookings"
+ON bookings FOR SELECT
+USING (
+  student_id IN (
+    SELECT s.id FROM students s
+    JOIN family_accounts fa ON s.family_id = fa.id
+    WHERE fa.parent_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Tutors can view own bookings"
+ON bookings FOR SELECT
+USING (tutor_id = auth.uid());
