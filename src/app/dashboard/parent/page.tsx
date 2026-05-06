@@ -21,23 +21,28 @@ export default function ParentDashboard() {
     try {
       const supabase = createClient()
       
-      // For demo accounts, map email to family_id
-      const urlParams = new URLSearchParams(window.location.search)
-      const email = urlParams.get('email') || 'michael@velocita-demo.com'
-      
-      let familyId
-      switch(email) {
-        case 'michael@velocita-demo.com':
-          familyId = '22222222-2222-2222-2222-222222222221'
-          break
-        case 'linh@velocita-demo.com':
-          familyId = '22222222-2222-2222-2222-222222222222'
-          break
-        case 'wei@velocita-demo.com':
-          familyId = '22222222-2222-2222-2222-222222222223'
-          break
-        default:
-          familyId = '22222222-2222-2222-2222-222222222221'
+      // Get logged-in user's email from Supabase Auth
+      const { data: { user } } = await supabase.auth.getUser()
+      const userEmail = user?.email
+
+      // Demo account email to family mapping
+      const DEMO_FAMILY_MAP: Record<string, string> = {
+        'michael@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222221',
+        'linh@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222222',
+        'wei@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222223',
+        'raj@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222224',
+      }
+
+      const familyId = DEMO_FAMILY_MAP[userEmail] || null
+
+      if (!familyId) {
+        console.error('No demo family mapping found for email:', userEmail)
+        setLoading(false)
+        return
       }
 
       // Fetch students for the family
@@ -46,42 +51,56 @@ export default function ParentDashboard() {
         .select('*')
         .eq('family_id', familyId)
 
-      // Fetch upcoming bookings for these students
-      const studentIds = studentsData?.map(s => s.id) || []
-      const { data: bookingsData } = await supabase
-        .from('bookings')
-        .select('*')
-        .in('student_id', studentIds)
-        .eq('status', 'confirmed')
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true })
+      // For each student, fetch their detailed data
+      const studentsWithDetails = await Promise.all(
+        (studentsData || []).map(async (student) => {
+          // Subject health
+          const { data: healthData } = await supabase
+            .from('subject_health')
+            .select('*')
+            .eq('student_id', student.id)
 
-      // Fetch subject health scores
-      const { data: healthData } = await supabase
-        .from('subject_health')
-        .select('*')
-        .in('student_id', studentIds)
+          // Latest progress narrative
+          const { data: narrativeData } = await supabase
+            .from('progress_narratives')
+            .select('*')
+            .eq('student_id', student.id)
+            .order('generated_at', { ascending: false })
+            .limit(1)
 
-      // Fetch progress narratives
-      const { data: narrativeData } = await supabase
-        .from('progress_narratives')
-        .select('*')
-        .in('student_id', studentIds)
-        .order('generated_at', { ascending: false })
-        .limit(1)
+          // Upcoming booking
+          const { data: bookingData } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('student_id', student.id)
+            .eq('status', 'confirmed')
+            .gt('scheduled_at', new Date().toISOString())
+            .order('scheduled_at', { ascending: true })
+            .limit(1)
 
-      // Fetch alerts
-      const { data: alertsData } = await supabase
-        .from('student_alerts')
-        .select('*')
-        .in('student_id', studentIds)
-        .eq('is_resolved', false)
+          // Active alerts
+          const { data: alertsData } = await supabase
+            .from('student_alerts')
+            .select('*')
+            .eq('student_id', student.id)
+            .eq('is_resolved', false)
 
-      setStudents(studentsData || [])
-      setUpcomingBookings(bookingsData || [])
-      setSubjectHealth(healthData || [])
-      setProgressNarrative(narrativeData?.[0] || null)
-      setAlerts(alertsData || [])
+          return {
+            ...student,
+            subjectHealth: healthData || [],
+            latestNarrative: narrativeData?.[0] || null,
+            upcomingBooking: bookingData?.[0] || null,
+            alerts: alertsData || []
+          }
+        })
+      )
+
+      // Collect all alerts for the alerts section
+      const allAlerts = studentsWithDetails.flatMap(student => student.alerts)
+
+      setStudents(studentsWithDetails)
+      setProgressNarrative(studentsWithDetails[0]?.latestNarrative || null)
+      setAlerts(allAlerts)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
     } finally {
@@ -192,27 +211,106 @@ export default function ParentDashboard() {
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {/* Children Overview */}
           <div className="lg:col-span-2">
-            {students.map((student, index) => (
-              <div key={student.id} className="bg-cards border border-card-border rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-playfair font-bold text-text-primary mb-4">
-                  {student.first_name}
-                </h3>
-                <div className="text-sm text-[#8B9DC3] mb-4">
-                  Year {student.year_level} • {student.school_name}
+            {students.map((student, index) => {
+              // Calculate overall subject health score
+              const overallHealth = student.subjectHealth.length > 0 
+                ? Math.round(
+                    student.subjectHealth.reduce((sum, health) => 
+                      sum + (health.understanding_score + health.application_score + 
+                             health.exam_technique_score + health.time_management_score + 
+                             health.confidence_score) / 5, 0) / student.subjectHealth.length
+                  )
+                : 0
+
+              return (
+                <div key={student.id} className="bg-cards border border-card-border rounded-lg p-6 mb-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-playfair font-bold text-text-primary mb-2">
+                        {student.first_name}
+                      </h3>
+                      <div className="text-sm text-[#8B9DC3]">
+                        Year {student.year_level} • {student.school_name}
+                      </div>
+                    </div>
+                    {student.upcomingBooking && (
+                      <div className="text-right text-sm">
+                        <div className="text-gold-cta font-semibold">
+                          {new Date(student.upcomingBooking.scheduled_at).toLocaleDateString()}
+                        </div>
+                        <div className="text-[#8B9DC3]">
+                          {student.upcomingBooking.subject}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ATAR Progress */}
+                  <div className="flex items-center mb-4">
+                    <div className="text-2xl font-bold text-gold-cta mr-3">
+                      {student.current_atar_estimate || '--'}
+                    </div>
+                    {student.target_atar && (
+                      <div className="flex items-center text-sm text-[#8B9DC3]">
+                        <span className="mr-2">→</span>
+                        <span>Target: {student.target_atar}</span>
+                        <span className="ml-2 text-gold-cta">↑</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Subject Health */}
+                  <div className="mb-4">
+                    <div className="text-sm text-[#8B9DC3] mb-2">Subject Health</div>
+                    <div className="w-full bg-[#1A2140] rounded-full h-2">
+                      <div 
+                        className="bg-gold-cta h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${overallHealth}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-[#8B9DC3] mt-1">
+                      Overall: {overallHealth}%
+                    </div>
+                  </div>
+
+                  {/* Latest Progress Narrative Excerpt */}
+                  {student.latestNarrative && (
+                    <div className="mb-4">
+                      <div className="text-sm text-[#8B9DC3] mb-1">Latest Progress</div>
+                      <div className="text-text-primary text-sm">
+                        {selectedLanguage === 'vi' && student.latestNarrative.narrative_vi
+                          ? student.latestNarrative.narrative_vi.substring(0, 150) + '...'
+                          : student.latestNarrative.narrative_en.substring(0, 150) + '...'
+                        }
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Alerts */}
+                  {student.alerts.length > 0 && (
+                    <div className="mb-4">
+                      {student.alerts.map((alert, alertIndex) => (
+                        <div key={alertIndex} className={`flex items-center text-sm ${
+                          alert.severity === 'warning' ? 'text-yellow-500' : 
+                          alert.severity === 'error' ? 'text-red-500' : 'text-blue-500'
+                        }`}>
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-1.333-1.964-1.333-2.732 0L3.82 16.5c-.77 1.333.192 2.5 1.732 2.5z" />
+                          </svg>
+                          <span>{alert.message}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4">
+                    <button className="text-gold-cta hover:text-yellow-500 text-sm transition-colors">
+                      View Details →
+                    </button>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-gold-cta mb-2">
-                  {student.current_atar_estimate || '--'}
-                </div>
-                <div className="text-sm text-[#8B9DC3] mb-4">
-                  Current ATAR estimate {student.target_atar && `→ Target: ${student.target_atar}`}
-                </div>
-                <div className="mt-4">
-                  <button className="text-gold-cta hover:text-yellow-500 text-sm transition-colors">
-                    View Details →
-                  </button>
-                </div>
-              </div>
-            ))}
+              )
+            })}
 
             {/* Progress Narrative */}
             {progressNarrative && (

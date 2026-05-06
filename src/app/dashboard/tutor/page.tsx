@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase'
 export default function TutorDashboard() {
   const [velocityScore, setVelocityScore] = useState(null)
   const [upcomingBookings, setUpcomingBookings] = useState([])
+  const [recentSessions, setRecentSessions] = useState([])
   const [sessionsCompleted, setSessionsCompleted] = useState(0)
   const [monthlyEarnings, setMonthlyEarnings] = useState(0)
   const [activeStudents, setActiveStudents] = useState(0)
@@ -20,49 +21,62 @@ export default function TutorDashboard() {
     try {
       const supabase = createClient()
       
-      // For demo accounts, map email to tutor_id
-      const urlParams = new URLSearchParams(window.location.search)
-      const email = urlParams.get('email') || 'emma@velocita-demo.com'
-      
-      let tutorId
-      switch(email) {
-        case 'emma@velocita-demo.com':
-          tutorId = '11111111-1111-1111-1111-111111111111'
-          break
-        case 'james@velocita-demo.com':
-          tutorId = '11111111-1111-1111-1111-111111111112'
-          break
-        case 'priya@velocita-demo.com':
-          tutorId = '11111111-1111-1111-1111-111111111113'
-          break
-        default:
-          tutorId = '11111111-1111-1111-1111-111111111111'
+      // Get logged-in user's email from Supabase Auth
+      const { data: { user } } = await supabase.auth.getUser()
+      const userEmail = user?.email
+
+      // Demo account email to tutor mapping
+      const DEMO_TUTOR_MAP: Record<string, string> = {
+        'emma@velocita-demo.com': 
+          '11111111-1111-1111-1111-111111111111',
+        'james@velocita-demo.com': 
+          '11111111-1111-1111-1111-111111111112',
+        'priya@velocita-demo.com': 
+          '11111111-1111-1111-1111-111111111113',
       }
 
-      // Fetch velocity score
+      const tutorId = DEMO_TUTOR_MAP[userEmail] || null
+
+      if (!tutorId) {
+        console.error('No demo tutor mapping found for email:', userEmail)
+        setLoading(false)
+        return
+      }
+
+      // Fetch velocity score from velocity_scores
       const { data: velocityData } = await supabase
         .from('velocity_scores')
         .select('*')
         .eq('tutor_id', tutorId)
         .single()
 
-      // Fetch upcoming bookings
+      // Fetch upcoming bookings with student details
       const { data: bookingsData } = await supabase
         .from('bookings')
         .select(`
-          *,
-          students!inner(
-            first_name,
-            year_level,
-            school_name
-          )
+          b.*,
+          s.first_name,
+          s.year_level,
+          s.school_name
         `)
-        .eq('tutor_id', tutorId)
-        .eq('status', 'confirmed')
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true })
+        .eq('b.tutor_id', tutorId)
+        .eq('b.status', 'confirmed')
+        .gt('b.scheduled_at', new Date().toISOString())
+        .order('b.scheduled_at', { ascending: true })
 
-      // Fetch completed sessions for earnings
+      // Fetch recent completed sessions
+      const { data: recentSessionsData } = await supabase
+        .from('bookings')
+        .select(`
+          b.*,
+          s.first_name
+        `)
+        .eq('b.tutor_id', tutorId)
+        .eq('b.status', 'completed')
+        .order('b.scheduled_at', { ascending: false })
+        .limit(5)
+
+      // Fetch monthly earnings from completed sessions
       const { data: completedData } = await supabase
         .from('bookings')
         .select('amount_aud')
@@ -81,6 +95,7 @@ export default function TutorDashboard() {
 
       setVelocityScore(velocityData?.score || 0)
       setUpcomingBookings(bookingsData || [])
+      setRecentSessions(recentSessionsData || [])
       setSessionsCompleted(velocityData?.sessions_count || 0)
       setMonthlyEarnings(completedData?.reduce((sum, b) => sum + (b.amount_aud || 0), 0) || 0)
       setActiveStudents(uniqueStudents.length)
@@ -187,10 +202,10 @@ export default function TutorDashboard() {
                 <div key={booking.id} className="flex items-center justify-between p-4 bg-[#1A2140] rounded-lg">
                   <div>
                     <div className="font-medium text-text-primary">
-                      {booking.students?.first_name} — {booking.subject}
+                      {booking.first_name} — {booking.subject}
                     </div>
                     <div className="text-sm text-[#8B9DC3]">
-                      {new Date(booking.scheduled_at).toLocaleDateString()} • {booking.students?.year_level}
+                      {new Date(booking.scheduled_at).toLocaleDateString()} • {booking.year_level}
                     </div>
                   </div>
                   <div className="text-right">
@@ -203,6 +218,37 @@ export default function TutorDashboard() {
           ) : (
             <div className="text-center text-[#8B9DC3]">
               No upcoming sessions scheduled
+            </div>
+          )}
+        </div>
+
+        {/* Recent Sessions */}
+        <div className="bg-cards border border-card-border rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-playfair font-bold text-text-primary mb-4">
+            Recent Sessions
+          </h2>
+          {recentSessions.length > 0 ? (
+            <div className="space-y-4">
+              {recentSessions.map((session, index) => (
+                <div key={session.id} className="flex items-center justify-between p-4 bg-[#1A2140] rounded-lg">
+                  <div>
+                    <div className="font-medium text-text-primary">
+                      {session.first_name} — {session.subject}
+                    </div>
+                    <div className="text-sm text-[#8B9DC3]">
+                      {new Date(session.scheduled_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-gold-cta">${session.amount_aud}</div>
+                    <div className="text-xs text-[#8B9DC3]">{session.duration_minutes} min</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-[#8B9DC3]">
+              No recent sessions
             </div>
           )}
         </div>
