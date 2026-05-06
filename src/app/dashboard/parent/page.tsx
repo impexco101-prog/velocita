@@ -1,10 +1,93 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase'
 
 export default function ParentDashboard() {
   const [selectedLanguage, setSelectedLanguage] = useState('en')
+  const [students, setStudents] = useState([])
+  const [upcomingBookings, setUpcomingBookings] = useState([])
+  const [subjectHealth, setSubjectHealth] = useState([])
+  const [progressNarrative, setProgressNarrative] = useState(null)
+  const [alerts, setAlerts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const supabase = createClient()
+      
+      // For demo accounts, map email to family_id
+      const urlParams = new URLSearchParams(window.location.search)
+      const email = urlParams.get('email') || 'michael@velocita-demo.com'
+      
+      let familyId
+      switch(email) {
+        case 'michael@velocita-demo.com':
+          familyId = '22222222-2222-2222-2222-222222222221'
+          break
+        case 'linh@velocita-demo.com':
+          familyId = '22222222-2222-2222-2222-222222222222'
+          break
+        case 'wei@velocita-demo.com':
+          familyId = '22222222-2222-2222-2222-222222222223'
+          break
+        default:
+          familyId = '22222222-2222-2222-2222-222222222221'
+      }
+
+      // Fetch students for the family
+      const { data: studentsData } = await supabase
+        .from('students')
+        .select('*')
+        .eq('family_id', familyId)
+
+      // Fetch upcoming bookings for these students
+      const studentIds = studentsData?.map(s => s.id) || []
+      const { data: bookingsData } = await supabase
+        .from('bookings')
+        .select('*')
+        .in('student_id', studentIds)
+        .eq('status', 'confirmed')
+        .gte('scheduled_at', new Date().toISOString())
+        .order('scheduled_at', { ascending: true })
+
+      // Fetch subject health scores
+      const { data: healthData } = await supabase
+        .from('subject_health')
+        .select('*')
+        .in('student_id', studentIds)
+
+      // Fetch progress narratives
+      const { data: narrativeData } = await supabase
+        .from('progress_narratives')
+        .select('*')
+        .in('student_id', studentIds)
+        .order('generated_at', { ascending: false })
+        .limit(1)
+
+      // Fetch alerts
+      const { data: alertsData } = await supabase
+        .from('student_alerts')
+        .select('*')
+        .in('student_id', studentIds)
+        .eq('is_resolved', false)
+
+      setStudents(studentsData || [])
+      setUpcomingBookings(bookingsData || [])
+      setSubjectHealth(healthData || [])
+      setProgressNarrative(narrativeData?.[0] || null)
+      setAlerts(alertsData || [])
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -19,6 +102,14 @@ export default function ParentDashboard() {
     { name: 'ATAR Results', date: '2026-12-12', daysUntil: 174 },
     { name: 'Term 4 Start', date: '2026-10-05', daysUntil: 106 }
   ]
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading dashboard...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,54 +165,70 @@ export default function ParentDashboard() {
           <h2 className="text-xl font-playfair font-bold text-text-primary mb-4">
             Alerts
           </h2>
-          <div className="flex items-center text-green-500">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Everything looks great — Johnny is on track</span>
-          </div>
+          {alerts.length > 0 ? (
+            <div className="space-y-3">
+              {alerts.map((alert, index) => (
+                <div key={index} className={`flex items-center ${
+                  alert.severity === 'warning' ? 'text-yellow-500' : 
+                  alert.severity === 'error' ? 'text-red-500' : 'text-blue-500'
+                }`}>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.82 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <span>{alert.message}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center text-green-500">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Everything looks great — all students are on track</span>
+            </div>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {/* Children Overview */}
           <div className="lg:col-span-2">
-            <div className="bg-cards border border-card-border rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-playfair font-bold text-text-primary mb-4">
-                Johnny Chen
-              </h3>
-              <div className="text-sm text-[#8B9DC3] mb-4">
-                Year 12 • Melbourne High School
+            {students.map((student, index) => (
+              <div key={student.id} className="bg-cards border border-card-border rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-playfair font-bold text-text-primary mb-4">
+                  {student.first_name}
+                </h3>
+                <div className="text-sm text-[#8B9DC3] mb-4">
+                  Year {student.year_level} • {student.school_name}
+                </div>
+                <div className="text-2xl font-bold text-gold-cta mb-2">
+                  {student.current_atar_estimate || '--'}
+                </div>
+                <div className="text-sm text-[#8B9DC3] mb-4">
+                  Current ATAR estimate {student.target_atar && `→ Target: ${student.target_atar}`}
+                </div>
+                <div className="mt-4">
+                  <button className="text-gold-cta hover:text-yellow-500 text-sm transition-colors">
+                    View Details →
+                  </button>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-gold-cta mb-2">
-                89.5
-              </div>
-              <div className="text-sm text-[#8B9DC3] mb-4">
-                Current ATAR estimate
-              </div>
-              <div className="mt-4">
-                <button className="text-gold-cta hover:text-yellow-500 text-sm transition-colors">
-                  View Details →
-                </button>
-              </div>
-            </div>
+            ))}
 
             {/* Progress Narrative */}
-            <div className="bg-cards border border-card-border rounded-lg p-6">
-              <h3 className="text-xl font-playfair font-bold text-text-primary mb-4">
-                This Week's Progress Story
-              </h3>
-              <div className="space-y-4 text-text-primary">
-                <p>
-                  This week Johnny focused on <span className="text-gold-cta font-semibold">Mathematical Methods</span>. His understanding of calculus concepts has improved significantly, particularly with integration techniques.
-                </p>
-                <p>
-                  We've noticed strong progress in problem-solving speed, with Johnny now completing practice questions 25% faster than last week. His confidence in tackling complex problems has grown noticeably.
-                </p>
-                <p>
-                  Looking ahead, we'll focus on exam technique and time management strategies to ensure Johnny can maintain this momentum under test conditions. Next week's sessions will include timed practice exams.
-                </p>
+            {progressNarrative && (
+              <div className="bg-cards border border-card-border rounded-lg p-6">
+                <h3 className="text-xl font-playfair font-bold text-text-primary mb-4">
+                  This Week's Progress Story
+                </h3>
+                <div className="space-y-4 text-text-primary">
+                  {selectedLanguage === 'vi' && progressNarrative.narrative_vi ? (
+                    <div className="whitespace-pre-line">{progressNarrative.narrative_vi}</div>
+                  ) : (
+                    <div className="whitespace-pre-line">{progressNarrative.narrative_en}</div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* VCE Calendar Widget */}

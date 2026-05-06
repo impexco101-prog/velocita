@@ -1,8 +1,103 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase'
 
 export default function TutorDashboard() {
+  const [velocityScore, setVelocityScore] = useState(null)
+  const [upcomingBookings, setUpcomingBookings] = useState([])
+  const [sessionsCompleted, setSessionsCompleted] = useState(0)
+  const [monthlyEarnings, setMonthlyEarnings] = useState(0)
+  const [activeStudents, setActiveStudents] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTutorData()
+  }, [])
+
+  const fetchTutorData = async () => {
+    try {
+      const supabase = createClient()
+      
+      // For demo accounts, map email to tutor_id
+      const urlParams = new URLSearchParams(window.location.search)
+      const email = urlParams.get('email') || 'emma@velocita-demo.com'
+      
+      let tutorId
+      switch(email) {
+        case 'emma@velocita-demo.com':
+          tutorId = '11111111-1111-1111-1111-111111111111'
+          break
+        case 'james@velocita-demo.com':
+          tutorId = '11111111-1111-1111-1111-111111111112'
+          break
+        case 'priya@velocita-demo.com':
+          tutorId = '11111111-1111-1111-1111-111111111113'
+          break
+        default:
+          tutorId = '11111111-1111-1111-1111-111111111111'
+      }
+
+      // Fetch velocity score
+      const { data: velocityData } = await supabase
+        .from('velocity_scores')
+        .select('*')
+        .eq('tutor_id', tutorId)
+        .single()
+
+      // Fetch upcoming bookings
+      const { data: bookingsData } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          students!inner(
+            first_name,
+            year_level,
+            school_name
+          )
+        `)
+        .eq('tutor_id', tutorId)
+        .eq('status', 'confirmed')
+        .gte('scheduled_at', new Date().toISOString())
+        .order('scheduled_at', { ascending: true })
+
+      // Fetch completed sessions for earnings
+      const { data: completedData } = await supabase
+        .from('bookings')
+        .select('amount_aud')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'completed')
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+
+      // Fetch active students count
+      const { data: activeStudentsData } = await supabase
+        .from('bookings')
+        .select('student_id')
+        .eq('tutor_id', tutorId)
+        .gte('scheduled_at', new Date(new Date().setDate(new Date().getDate() - 30)).toISOString())
+
+      const uniqueStudents = [...new Set(activeStudentsData?.map(b => b.student_id) || [])]
+
+      setVelocityScore(velocityData?.score || 0)
+      setUpcomingBookings(bookingsData || [])
+      setSessionsCompleted(velocityData?.sessions_count || 0)
+      setMonthlyEarnings(completedData?.reduce((sum, b) => sum + (b.amount_aud || 0), 0) || 0)
+      setActiveStudents(uniqueStudents.length)
+    } catch (error) {
+      console.error('Error fetching tutor data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading dashboard...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -38,16 +133,6 @@ export default function TutorDashboard() {
           </p>
         </div>
 
-        {/* WWCC Alert */}
-        <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-8">
-          <div className="flex items-center text-red-500">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span>⚠️ Complete your WWCC verification to appear in search results</span>
-          </div>
-        </div>
-
         {/* Velocity Score */}
         <div className="bg-cards border border-card-border rounded-lg p-6 mb-8">
           <h2 className="text-xl font-playfair font-bold text-text-primary mb-4">
@@ -55,10 +140,10 @@ export default function TutorDashboard() {
           </h2>
           <div className="text-center">
             <div className="text-5xl font-bold text-gold-cta mb-2">
-              --
+              {velocityScore || '--'}
             </div>
             <p className="text-[#8B9DC3]">
-              Your Velocity Score will appear after your first 3 sessions
+              {velocityScore ? 'Excellent performance!' : 'Your Velocity Score will appear after your first 3 sessions'}
             </p>
           </div>
         </div>
@@ -67,7 +152,7 @@ export default function TutorDashboard() {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-cards border border-card-border rounded-lg p-6">
             <div className="text-3xl font-bold text-gold-cta mb-2">
-              0
+              {activeStudents}
             </div>
             <div className="text-sm text-[#8B9DC3]">
               Active Students
@@ -75,7 +160,7 @@ export default function TutorDashboard() {
           </div>
           <div className="bg-cards border border-card-border rounded-lg p-6">
             <div className="text-3xl font-bold text-gold-cta mb-2">
-              0
+              {sessionsCompleted}
             </div>
             <div className="text-sm text-[#8B9DC3]">
               Sessions Completed
@@ -83,12 +168,43 @@ export default function TutorDashboard() {
           </div>
           <div className="bg-cards border border-card-border rounded-lg p-6">
             <div className="text-3xl font-bold text-gold-cta mb-2">
-              $0
+              ${monthlyEarnings.toFixed(0)}
             </div>
             <div className="text-sm text-[#8B9DC3]">
               Monthly Earnings
             </div>
           </div>
+        </div>
+
+        {/* Upcoming Sessions */}
+        <div className="bg-cards border border-card-border rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-playfair font-bold text-text-primary mb-4">
+            Upcoming Sessions
+          </h2>
+          {upcomingBookings.length > 0 ? (
+            <div className="space-y-4">
+              {upcomingBookings.map((booking, index) => (
+                <div key={booking.id} className="flex items-center justify-between p-4 bg-[#1A2140] rounded-lg">
+                  <div>
+                    <div className="font-medium text-text-primary">
+                      {booking.students?.first_name} — {booking.subject}
+                    </div>
+                    <div className="text-sm text-[#8B9DC3]">
+                      {new Date(booking.scheduled_at).toLocaleDateString()} • {booking.students?.year_level}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-gold-cta">${booking.amount_aud}</div>
+                    <div className="text-xs text-[#8B9DC3]">{booking.duration_minutes} min</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-[#8B9DC3]">
+              No upcoming sessions scheduled
+            </div>
+          )}
         </div>
       </div>
     </div>

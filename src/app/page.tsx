@@ -29,6 +29,13 @@ export default function Home() {
                 Pricing
               </Link>
               <Link 
+                href="/demo" 
+                className="text-sm font-dm-sans text-gold-cta hover:text-yellow-500 transition-colors flex items-center"
+              >
+                <span className="w-2 h-2 bg-gold-cta rounded-full mr-2"></span>
+                Demo
+              </Link>
+              <Link 
                 href="/tutors/register" 
                 className="text-sm font-dm-sans text-[#8B9DC3] hover:text-gold-cta transition-colors"
               >
