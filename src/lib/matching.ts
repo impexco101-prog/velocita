@@ -4,7 +4,7 @@ export interface Tutor {
   id: string
   name: string
   subjects: string[]
-  availability: any
+  availability: Record<string, unknown>
   velocity_score: number
   languages: string[]
   hourly_rate: number
@@ -14,7 +14,7 @@ export interface StudentProfile {
   id: string
   name: string
   subjects: string[]
-  availability: any
+  availability: Record<string, unknown>
   language_preference: string
   target_atar: number
 }
@@ -124,7 +124,7 @@ export function generateReferralCode(userId: string): string {
  * @param studentData - Student progress data
  * @returns Generated narrative
  */
-export function generateProgressNarrative(studentData: any): {
+export function generateProgressNarrative(studentData: unknown): {
   narrative_en: string
   narrative_vi: string
   narrative_zh: string

@@ -158,7 +158,7 @@ export default function AuditDashboard() {
     audit.status === 'failed'
   ).length
 
-  const exportToCSV = (data: any[], filename: string) => {
+  const exportToCSV = (data: unknown[], filename: string) => {
     const csv = [
       Object.keys(data[0]).join(','),
       ...data.map(row => Object.values(row).join(','))

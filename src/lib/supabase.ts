@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export type DiagnosticResult = {
   id: string
   year_level: number
-  subjects: any[]
+  subjects: unknown[]
   current_atar: number
   target_atar: number
   math_score: number
