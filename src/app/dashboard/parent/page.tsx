@@ -14,19 +14,18 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
+    const fetchData = async () => {
       const supabase = createClient()
       
-      // Get logged-in user's email from Supabase Auth
-      const { data: { user } } = await supabase.auth.getUser()
+      // Get logged in user email
+      const { data: { user } } = 
+        await supabase.auth.getUser()
       const userEmail = user?.email
-
-      // Demo account email to family mapping
-      const DEMO_FAMILY_MAP: Record<string, string> = {
+      console.log('User email:', userEmail)
+      
+      // Demo family mapping
+      const DEMO_FAMILY_MAP: 
+        Record<string, string> = {
         'michael@velocita-demo.com': 
           '22222222-2222-2222-2222-222222222221',
         'linh@velocita-demo.com': 
@@ -36,77 +35,87 @@ export default function ParentDashboard() {
         'raj@velocita-demo.com': 
           '22222222-2222-2222-2222-222222222224',
       }
-
-      const familyId = DEMO_FAMILY_MAP[userEmail] || null
-
+      
+      const familyId = userEmail ? 
+        DEMO_FAMILY_MAP[userEmail] : null
+      console.log('Family ID:', familyId)
+      
       if (!familyId) {
-        console.error('No demo family mapping found for email:', userEmail)
+        console.log('No family ID found')
         setLoading(false)
         return
       }
-
-      // Fetch students for the family
-      const { data: studentsData } = await supabase
-        .from('students')
-        .select('*')
-        .eq('family_id', familyId)
-
-      // For each student, fetch their detailed data
-      const studentsWithDetails = await Promise.all(
-        (studentsData || []).map(async (student) => {
-          // Subject health
-          const { data: healthData } = await supabase
-            .from('subject_health')
-            .select('*')
-            .eq('student_id', student.id)
-
-          // Latest progress narrative
-          const { data: narrativeData } = await supabase
-            .from('progress_narratives')
-            .select('*')
-            .eq('student_id', student.id)
-            .order('generated_at', { ascending: false })
-            .limit(1)
-
-          // Upcoming booking
-          const { data: bookingData } = await supabase
-            .from('bookings')
-            .select('*')
-            .eq('student_id', student.id)
-            .eq('status', 'confirmed')
-            .gt('scheduled_at', new Date().toISOString())
-            .order('scheduled_at', { ascending: true })
-            .limit(1)
-
-          // Active alerts
-          const { data: alertsData } = await supabase
-            .from('student_alerts')
-            .select('*')
-            .eq('student_id', student.id)
-            .eq('is_resolved', false)
-
-          return {
-            ...student,
-            subjectHealth: healthData || [],
-            latestNarrative: narrativeData?.[0] || null,
-            upcomingBooking: bookingData?.[0] || null,
-            alerts: alertsData || []
-          }
-        })
-      )
-
-      // Collect all alerts for the alerts section
-      const allAlerts = studentsWithDetails.flatMap(student => student.alerts)
-
-      setStudents(studentsWithDetails)
-      setProgressNarrative(studentsWithDetails[0]?.latestNarrative || null)
-      setAlerts(allAlerts)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-    } finally {
+      
+      // Fetch students
+      const { data: studentsData, error } = 
+        await supabase
+          .from('students')
+          .select('*')
+          .eq('family_id', familyId)
+      
+      console.log('Students:', studentsData)
+      console.log('Error:', error)
+      
+      if (studentsData && studentsData.length > 0) {
+        // For each student fetch additional data
+        const enrichedStudents = await 
+          Promise.all(studentsData.map(
+            async (student) => {
+              
+              const [health, narrative, 
+                booking, alerts] = 
+              await Promise.all([
+                
+                supabase.from('subject_health')
+                  .select('*')
+                  .eq('student_id', student.id),
+                  
+                supabase.from('progress_narratives')
+                  .select('*')
+                  .eq('student_id', student.id)
+                  .order('generated_at', 
+                    { ascending: false })
+                  .limit(1),
+                  
+                supabase.from('bookings')
+                  .select('*')
+                  .eq('student_id', student.id)
+                  .eq('status', 'confirmed')
+                  .gt('scheduled_at', 
+                    new Date().toISOString())
+                  .order('scheduled_at', 
+                    { ascending: true })
+                  .limit(1),
+                  
+                supabase.from('student_alerts')
+                  .select('*')
+                  .eq('student_id', student.id)
+                  .eq('is_resolved', false)
+              ])
+              
+              return {
+                ...student,
+                subjectHealth: health.data || [],
+                narrative: narrative.data?.[0] 
+                  || null,
+                upcomingBooking: 
+                  booking.data?.[0] || null,
+                alerts: alerts.data || []
+              }
+            }))
+        
+        setStudents(enrichedStudents)
+        console.log('Enriched students:', enrichedStudents)
+      } else {
+        console.log('No students found')
+      }
+      
       setLoading(false)
     }
-  }
+    
+    fetchData()
+  }, [])
+}, [])
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -274,14 +283,11 @@ export default function ParentDashboard() {
                   </div>
 
                   {/* Latest Progress Narrative Excerpt */}
-                  {student.latestNarrative && (
+                  {student.narrative && (
                     <div className="mb-4">
                       <div className="text-sm text-[#8B9DC3] mb-1">Latest Progress</div>
                       <div className="text-text-primary text-sm">
-                        {selectedLanguage === 'vi' && student.latestNarrative.narrative_vi
-                          ? student.latestNarrative.narrative_vi.substring(0, 150) + '...'
-                          : student.latestNarrative.narrative_en.substring(0, 150) + '...'
-                        }
+                        {student.narrative.narrative_en?.slice(0, 150)}...
                       </div>
                     </div>
                   )}
@@ -313,16 +319,16 @@ export default function ParentDashboard() {
             })}
 
             {/* Progress Narrative */}
-            {progressNarrative && (
+            {students.length > 0 && students[0].narrative && (
               <div className="bg-cards border border-card-border rounded-lg p-6">
                 <h3 className="text-xl font-playfair font-bold text-text-primary mb-4">
                   This Week's Progress Story
                 </h3>
                 <div className="space-y-4 text-text-primary">
-                  {selectedLanguage === 'vi' && progressNarrative.narrative_vi ? (
-                    <div className="whitespace-pre-line">{progressNarrative.narrative_vi}</div>
+                  {selectedLanguage === 'vi' && students[0].narrative.narrative_vi ? (
+                    <div className="whitespace-pre-line">{students[0].narrative.narrative_vi}</div>
                   ) : (
-                    <div className="whitespace-pre-line">{progressNarrative.narrative_en}</div>
+                    <div className="whitespace-pre-line">{students[0].narrative.narrative_en}</div>
                   )}
                 </div>
               </div>
