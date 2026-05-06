@@ -249,6 +249,13 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Disclaimer */}
+          <div className="text-center mt-8">
+            <p className="text-xs text-[#4A5578] italic">
+              * Results shown are illustrative of expected outcomes. Verified student results will be published as our founding cohort progresses.
+            </p>
+          </div>
+
           {/* More results CTA */}
           <div className="text-center mt-16">
             <Link 

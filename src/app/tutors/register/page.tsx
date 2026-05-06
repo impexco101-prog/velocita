@@ -31,8 +31,7 @@ export default function TutorRegister() {
     degree: '',
     yearOfStudy: '',
     subjects: [] as string[],
-    hourlyRate: 65,
-    availability: {
+        availability: {
       mondayFridayMornings: false,
       mondayFridayAfternoons: false,
       mondayFridayEvenings: false,
@@ -97,10 +96,10 @@ export default function TutorRegister() {
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           <div className="bg-cards border border-card-border rounded-lg p-6">
             <h3 className="text-xl font-playfair font-bold text-gold-cta mb-3">
-              Earn $65-95/hour
+              Zero Admin. Zero Prep.
             </h3>
             <p className="text-[#8B9DC3]">
-              Set your own schedule. We handle all bookings and admin.
+              We handle all bookings, payments, and scheduling. Your AI Teaching Partner sends you a complete session brief 2 hours before every lesson. Show up and teach.
             </p>
           </div>
           <div className="bg-cards border border-card-border rounded-lg p-6">
@@ -252,26 +251,7 @@ export default function TutorRegister() {
               </div>
             </div>
 
-            {/* Hourly Rate */}
-            <div>
-              <label className="block text-text-primary font-medium mb-2">
-                Hourly rate preference: <span className="text-gold-cta font-bold">${formData.hourlyRate}</span>
-              </label>
-              <input
-                type="range"
-                min="45"
-                max="120"
-                value={formData.hourlyRate}
-                onChange={(e) => setFormData({...formData, hourlyRate: parseInt(e.target.value)})}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                style={{background: `linear-gradient(to right, #D4A843 0%, #D4A843 ${((formData.hourlyRate - 45) / 75) * 100}%, #374151 ${((formData.hourlyRate - 45) / 75) * 100}%, #374151 100%)`}}
-              />
-              <div className="flex justify-between text-xs text-[#8B9DC3] mt-2">
-                <span>$45</span>
-                <span>$120</span>
-              </div>
-            </div>
-
+            
             {/* Availability */}
             <div>
               <label className="block text-text-primary font-medium mb-2">
