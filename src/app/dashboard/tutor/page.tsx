@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function TutorDashboard() {
   const [velocityScore, setVelocityScore] = useState(null)
@@ -19,7 +19,10 @@ export default function TutorDashboard() {
 
   const fetchTutorData = async () => {
     try {
-      const supabase = createClient()
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       
       // Get logged-in user's email from Supabase Auth
       const { data: { user } } = await supabase.auth.getUser()

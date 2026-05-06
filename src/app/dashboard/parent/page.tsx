@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function ParentDashboard() {
   const [selectedLanguage, setSelectedLanguage] = useState('en')
@@ -15,7 +15,10 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient()
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       
       // Get logged in user email
       const { data: { user } } = 
