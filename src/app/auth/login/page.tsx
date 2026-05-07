@@ -25,7 +25,8 @@ export default function Login() {
       // For now, redirect to parent dashboard (will be role-based after auth)
       router.push('/dashboard/parent')
     } catch (err) {
-      setError('Invalid email or password')
+      console.error('Login error:', err)
+      setError(err instanceof Error ? err.message : 'Invalid email or password')
     } finally {
       setLoading(false)
     }

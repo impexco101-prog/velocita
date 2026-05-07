@@ -19,24 +19,19 @@ export default function TutorDashboard() {
 
   const fetchTutorData = async () => {
     try {
-      const sb = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storageKey: 'velocita-auth',
-          }
-        }
-      )
-      
-      // Get logged-in user's email using getSession (more reliable)
-      const { data: { session } } = await sb.auth.getSession()
-      const userEmail = session?.user?.email
-      console.log('Session:', session)
-      console.log('User email:', userEmail)
+      // Check if running on server
+        if (typeof window === 'undefined') return
+        
+        const sb = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        // Get logged-in user's email using getSession (more reliable)
+        const { data: { session } } = await sb.auth.getSession()
+        const userEmail = session?.user?.email
+        console.log('Session:', session)
+        console.log('User email:', userEmail)
 
       // Demo account email to tutor mapping
       const DEMO_TUTOR_MAP: Record<string, string> = {
@@ -117,6 +112,10 @@ export default function TutorDashboard() {
     } finally {
       setLoading(false)
     }
+  } catch (error) {
+    console.error('Error in tutor dashboard:', error)
+    setLoading(false)
+  }
   }
   if (loading) {
     return (

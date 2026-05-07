@@ -15,25 +15,21 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const sb = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storageKey: 'velocita-auth',
-          }
-        }
-      )
-      
-      // Get logged in user email using getSession (more reliable)
-      const { data: { session } } = 
-        await sb.auth.getSession()
-      const userEmail = session?.user?.email
-      console.log('Session:', session)
-      console.log('User email:', userEmail)
+      try {
+        // Check if running on server
+        if (typeof window === 'undefined') return
+        
+        const sb = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        // Get logged in user email using getSession (more reliable)
+        const { data: { session } } = 
+          await sb.auth.getSession()
+        const userEmail = session?.user?.email
+        console.log('Session:', session)
+        console.log('User email:', userEmail)
       
       // Demo family mapping
       const DEMO_FAMILY_MAP: 
@@ -122,6 +118,9 @@ export default function ParentDashboard() {
         console.log('No students found')
       }
       
+      setLoading(false)
+    } catch (error) {
+      console.error('Error in parent dashboard:', error)
       setLoading(false)
     }
     
