@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 
 export default function TutorDashboard() {
   const [velocityScore, setVelocityScore] = useState(null)
@@ -22,7 +22,7 @@ export default function TutorDashboard() {
       // Check if running on server
         if (typeof window === 'undefined') return
         
-        const sb = createBrowserClient(
+        const sb = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )
@@ -112,10 +112,6 @@ export default function TutorDashboard() {
     } finally {
       setLoading(false)
     }
-  } catch (error) {
-    console.error('Error in tutor dashboard:', error)
-    setLoading(false)
-  }
   }
   if (loading) {
     return (
