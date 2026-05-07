@@ -15,15 +15,24 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createBrowserClient(
+      const sb = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storageKey: 'velocita-auth',
+          }
+        }
       )
       
-      // Get logged in user email
-      const { data: { user } } = 
-        await supabase.auth.getUser()
-      const userEmail = user?.email
+      // Get logged in user email using getSession (more reliable)
+      const { data: { session } } = 
+        await sb.auth.getSession()
+      const userEmail = session?.user?.email
+      console.log('Session:', session)
       console.log('User email:', userEmail)
       
       // Demo family mapping
@@ -51,7 +60,7 @@ export default function ParentDashboard() {
       
       // Fetch students
       const { data: studentsData, error } = 
-        await supabase
+        await sb
           .from('students')
           .select('*')
           .eq('family_id', familyId)
@@ -69,18 +78,18 @@ export default function ParentDashboard() {
                 booking, alerts] = 
               await Promise.all([
                 
-                supabase.from('subject_health')
+                sb.from('subject_health')
                   .select('*')
                   .eq('student_id', student.id),
                   
-                supabase.from('progress_narratives')
+                sb.from('progress_narratives')
                   .select('*')
                   .eq('student_id', student.id)
                   .order('generated_at', 
                     { ascending: false })
                   .limit(1),
                   
-                supabase.from('bookings')
+                sb.from('bookings')
                   .select('*')
                   .eq('student_id', student.id)
                   .eq('status', 'confirmed')
@@ -90,7 +99,7 @@ export default function ParentDashboard() {
                     { ascending: true })
                   .limit(1),
                   
-                supabase.from('student_alerts')
+                sb.from('student_alerts')
                   .select('*')
                   .eq('student_id', student.id)
                   .eq('is_resolved', false)

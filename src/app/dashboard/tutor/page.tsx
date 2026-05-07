@@ -19,14 +19,24 @@ export default function TutorDashboard() {
 
   const fetchTutorData = async () => {
     try {
-      const supabase = createBrowserClient(
+      const sb = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storageKey: 'velocita-auth',
+          }
+        }
       )
       
-      // Get logged-in user's email from Supabase Auth
-      const { data: { user } } = await supabase.auth.getUser()
-      const userEmail = user?.email
+      // Get logged-in user's email using getSession (more reliable)
+      const { data: { session } } = await sb.auth.getSession()
+      const userEmail = session?.user?.email
+      console.log('Session:', session)
+      console.log('User email:', userEmail)
 
       // Demo account email to tutor mapping
       const DEMO_TUTOR_MAP: Record<string, string> = {
@@ -47,14 +57,14 @@ export default function TutorDashboard() {
       }
 
       // Fetch velocity score from velocity_scores
-      const { data: velocityData } = await supabase
+      const { data: velocityData } = await sb
         .from('velocity_scores')
         .select('*')
         .eq('tutor_id', tutorId)
         .single()
 
       // Fetch upcoming bookings with student details
-      const { data: bookingsData } = await supabase
+      const { data: bookingsData } = await sb
         .from('bookings')
         .select(`
           b.*,
@@ -68,7 +78,7 @@ export default function TutorDashboard() {
         .order('b.scheduled_at', { ascending: true })
 
       // Fetch recent completed sessions
-      const { data: recentSessionsData } = await supabase
+      const { data: recentSessionsData } = await sb
         .from('bookings')
         .select(`
           b.*,
@@ -80,7 +90,7 @@ export default function TutorDashboard() {
         .limit(5)
 
       // Fetch monthly earnings from completed sessions
-      const { data: completedData } = await supabase
+      const { data: completedData } = await sb
         .from('bookings')
         .select('amount_aud')
         .eq('tutor_id', tutorId)
@@ -88,7 +98,7 @@ export default function TutorDashboard() {
         .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
 
       // Fetch active students count
-      const { data: activeStudentsData } = await supabase
+      const { data: activeStudentsData } = await sb
         .from('bookings')
         .select('student_id')
         .eq('tutor_id', tutorId)
