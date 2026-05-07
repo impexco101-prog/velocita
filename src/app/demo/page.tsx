@@ -1,8 +1,27 @@
 'use client'
 
 import Link from 'next/link'
+import { getSupabase } from '@/lib/supabase'
 
 export default function Demo() {
+  const loginAsDemo = async (
+    email: string, 
+    password: string,
+    redirectTo: string
+  ) => {
+    const sb = getSupabase()
+    const { data, error } = await sb.auth
+      .signInWithPassword({ email, password })
+    
+    if (error) {
+      alert('Login failed: ' + error.message)
+      return
+    }
+    
+    if (data.session) {
+      window.location.href = redirectTo
+    }
+  }
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -71,12 +90,16 @@ export default function Demo() {
                 <strong>Email:</strong> michael@velocita-demo.com<br/>
                 <strong>Password:</strong> Demo2026!
               </div>
-              <Link 
-                href="/auth/login?email=michael@velocita-demo.com"
+              <button
+                onClick={() => loginAsDemo(
+                  'michael@velocita-demo.com',
+                  'Demo2026!',
+                  '/dashboard/parent'
+                )}
                 className="inline-flex items-center justify-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-3 px-6 rounded-[6px] transition-colors w-full"
               >
                 View Parent Dashboard →
-              </Link>
+              </button>
             </div>
 
             {/* Card 2 — Vietnamese parent */}
@@ -97,12 +120,16 @@ export default function Demo() {
                 <strong>Email:</strong> linh@velocita-demo.com<br/>
                 <strong>Password:</strong> Demo2026!
               </div>
-              <Link 
-                href="/auth/login?email=linh@velocita-demo.com"
+              <button
+                onClick={() => loginAsDemo(
+                  'linh@velocita-demo.com',
+                  'Demo2026!', 
+                  '/dashboard/parent'
+                )}
                 className="inline-flex items-center justify-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-3 px-6 rounded-[6px] transition-colors w-full"
               >
-                View in Vietnamese →
-              </Link>
+                View Vietnamese Dashboard →
+              </button>
             </div>
 
             {/* Card 3 — Chinese family elite student */}
@@ -123,12 +150,16 @@ export default function Demo() {
                 <strong>Email:</strong> wei@velocita-demo.com<br/>
                 <strong>Password:</strong> Demo2026!
               </div>
-              <Link 
-                href="/auth/login?email=wei@velocita-demo.com"
+              <button
+                onClick={() => loginAsDemo(
+                  'wei@velocita-demo.com',
+                  'Demo2026!',
+                  '/dashboard/parent'
+                )}
                 className="inline-flex items-center justify-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-3 px-6 rounded-[6px] transition-colors w-full"
               >
                 View Elite Dashboard →
-              </Link>
+              </button>
             </div>
 
             {/* Card 4 — Tutor view */}
@@ -149,12 +180,16 @@ export default function Demo() {
                 <strong>Email:</strong> emma@velocita-demo.com<br/>
                 <strong>Password:</strong> Demo2026!
               </div>
-              <Link 
-                href="/auth/login?email=emma@velocita-demo.com"
+              <button
+                onClick={() => loginAsDemo(
+                  'emma@velocita-demo.com',
+                  'Demo2026!',
+                  '/dashboard/tutor'
+                )}
                 className="inline-flex items-center justify-center bg-gold-cta hover:bg-yellow-500 text-background font-bold py-3 px-6 rounded-[6px] transition-colors w-full"
               >
                 View Tutor Dashboard →
-              </Link>
+              </button>
             </div>
 
             {/* Card 5 — No login needed */}
@@ -174,12 +209,12 @@ export default function Demo() {
               <div className="text-xs text-[#8B9DC3] mb-4">
                 <strong>Start immediately — no signup required</strong>
               </div>
-              <Link 
-                href="/diagnostic"
+              <button
+                onClick={() => window.location.href = '/diagnostic'}
                 className="inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-[6px] transition-colors w-full"
               >
                 Start Free Diagnostic →
-              </Link>
+              </button>
             </div>
 
           </div>
