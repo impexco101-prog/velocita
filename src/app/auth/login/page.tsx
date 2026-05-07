@@ -36,8 +36,19 @@ export default function Login() {
 
       if (data.session) {
         // Session is stored automatically by Supabase in localStorage
-        // Just redirect to dashboard
-        window.location.href = '/dashboard/parent'
+        // Check user role and redirect accordingly
+        const TUTOR_EMAILS = [
+          'emma@velocita-demo.com',
+          'james@velocita-demo.com', 
+          'priya@velocita-demo.com'
+        ]
+        
+        const userEmail = data.session.user.email
+        if (TUTOR_EMAILS.includes(userEmail || '')) {
+          window.location.href = '/dashboard/tutor'
+        } else {
+          window.location.href = '/dashboard/parent'
+        }
       } else {
         setError('Login failed: No session created')
       }
