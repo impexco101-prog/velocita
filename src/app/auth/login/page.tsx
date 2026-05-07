@@ -20,11 +20,27 @@ export default function Login() {
     setLoading(true)
 
     try {
-      // TODO: Implement Supabase auth login
-      console.log('Login:', formData)
-      
-      // For now, redirect to parent dashboard (will be role-based after auth)
-      router.push('/dashboard/parent')
+      const { data, error } = await getSupabase()
+        .auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
+        })
+
+      console.log('Login result:', data, error)
+      console.log('Session:', data?.session)
+
+      if (error) {
+        setError(error.message)
+        return
+      }
+
+      if (data.session) {
+        // Session is stored automatically by Supabase in localStorage
+        // Just redirect to dashboard
+        window.location.href = '/dashboard/parent'
+      } else {
+        setError('Login failed: No session created')
+      }
     } catch (err) {
       console.error('Login error:', err)
       setError(err instanceof Error ? err.message : 'Invalid email or password')
