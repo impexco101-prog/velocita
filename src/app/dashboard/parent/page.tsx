@@ -20,40 +20,46 @@ export default function ParentDashboard() {
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        const userEmail = session?.user?.email || ''
-        
-        console.log('Email:', userEmail)
-        setEmail(userEmail)
-        
-        const familyId = DEMO_FAMILY_MAP[userEmail]
-        console.log('Family ID:', familyId)
-        
-        if (!familyId) {
-          setLoading(false)
-          return
-        }
-        
-        const { data, error } = await supabase
-          .from('students')
-          .select('*')
-          .eq('family_id', familyId)
-        
-        console.log('Students:', data, error)
-        
-        if (data) setStudents(data)
+  const sb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+const { data: { subscription } } = 
+  sb.auth.onAuthStateChange(
+    async (event, session) => {
+      const userEmail = 
+        session?.user?.email || ''
+      setEmail(userEmail)
+      if (!userEmail) {
         setLoading(false)
-        
-      } catch(e: any) {
-        console.error('Error:', e)
-        setLoading(false)
+        return
       }
+      const DEMO_FAMILY_MAP: 
+        Record<string, string> = {
+        'michael@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222221',
+        'linh@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222222',
+        'wei@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222223',
+        'raj@velocita-demo.com': 
+          '22222222-2222-2222-2222-222222222224',
+      }
+      const familyId = 
+        DEMO_FAMILY_MAP[userEmail]
+      if (!familyId) {
+        setLoading(false)
+        return
+      }
+      const { data } = await sb
+        .from('students')
+        .select('*')
+        .eq('family_id', familyId)
+      if (data) setStudents(data)
+      setLoading(false)
     }
-    load()
-  }, [])
+  )
+return () => subscription.unsubscribe()
 
   const VCE_DATES = [
     { name: 'VCE Exams Start', date: '2026-10-26', days: 127 },
