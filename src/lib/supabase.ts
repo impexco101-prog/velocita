@@ -1,28 +1,19 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-export const supabase = createSupabaseClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+let client: ReturnType<typeof createClient> | null = null
 
-export type DiagnosticResult = {
-  id: string
+export function getSupabase() {
+  if (!client) {
+    client = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  }
+  return client
 }
 
 export type DiagnosticResult = {
   id: string
-  year_level: number
-  subjects: unknown[]
-  current_atar: number
-  target_atar: number
-  math_score: number
-  english_score: number
-  study_hours: number
-  has_tutor: boolean
-  challenge: string
-  predicted_atar: number
-  email: string
-  created_at: string
 }
 
 export type Database = {

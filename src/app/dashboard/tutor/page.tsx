@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '@/lib/supabase'
 
 export default function TutorDashboard() {
   const [velocityScore, setVelocityScore] = useState(null)
@@ -22,10 +22,7 @@ export default function TutorDashboard() {
       // Check if running on server
         if (typeof window === 'undefined') return
         
-        const sb = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
+        const sb = getSupabase()
         
         // Get logged-in user's email using getSession (more reliable)
         const { data: { session } } = await sb.auth.getSession()

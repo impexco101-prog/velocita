@@ -1,4 +1,4 @@
-import { createClient } from './supabase';
+import { getSupabase } from './supabase';
 
 export type AuditAction = 
   | 'user.signup'
@@ -64,7 +64,7 @@ export async function logAuditEvent({
   failureReason?: string;
   ipAddress?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('audit_logs').insert({
     actor_id: actorId,
@@ -96,7 +96,7 @@ export async function logConsent({
   consented: boolean;
   ipAddress?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('consent_records').insert({
     profile_id: profileId,
@@ -125,7 +125,7 @@ export async function logDataAccess({
   accessReason: string;
   ipAddress?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('data_access_logs').insert({
     accessor_id: accessorId,
@@ -162,7 +162,7 @@ export async function logFinancialAudit({
   status: string;
   processedBy?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('financial_audit').insert({
     transaction_type: transactionType,
@@ -200,7 +200,7 @@ export async function logVerificationAudit({
   status: string;
   verifiedByAdmin?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('verification_audit').insert({
     tutor_id: tutorId,
@@ -251,7 +251,7 @@ export async function logSessionAudit({
   sessionCompleted?: boolean;
   cancellationReason?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('session_audit').insert({
     booking_id: bookingId,
@@ -297,7 +297,7 @@ export async function logIncidentAudit({
   escalatedTo?: string;
   resolution?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('incident_audit').insert({
     incident_id: incidentId,
@@ -333,7 +333,7 @@ export async function logDataLifecycle({
   retentionPeriodDays?: number;
   scheduledDeletionDate?: string;
 }) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   
   await supabase.from('data_lifecycle_log').insert({
     record_type: recordType,

@@ -1,12 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '@/lib/supabase'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 const DEMO_FAMILY_MAP: Record<string, string> = {
   'michael@velocita-demo.com': '22222222-2222-2222-2222-222222222221',
@@ -20,12 +16,9 @@ export default function ParentDashboard() {
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+  const supabase = getSupabase()
 const { data: { subscription } } = 
-  sb.auth.onAuthStateChange(
+  supabase.auth.onAuthStateChange(
     async (event, session) => {
       const userEmail = 
         session?.user?.email || ''
@@ -51,7 +44,7 @@ const { data: { subscription } } =
         setLoading(false)
         return
       }
-      const { data } = await sb
+      const { data } = await supabase
         .from('students')
         .select('*')
         .eq('family_id', familyId)

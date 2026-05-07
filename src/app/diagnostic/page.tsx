@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { getRankedTutors } from '@/lib/matching'
 
@@ -199,6 +199,7 @@ export default function DiagnosticPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
+      const supabase = getSupabase()
       const { error } = await supabase.from('diagnostic_results').insert({
         year_level: parseInt(formData.year_level),
         subjects: formData.subjects,
